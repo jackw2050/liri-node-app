@@ -1,28 +1,35 @@
 'use strict';
 //LIRI-Austin
+/*
+
+add for each [key] to searches 
+
+
+
+
+
+*/
+
+
+
+
 var fs = require('fs');
 var keys = require("./key.js");
+//var request = require('./request');
 
 var inquirer = require('inquirer');
 var geocoder = require('geocoder');
 var spotify = require('spotify');
 
-var omdb = require('omdb');
+//var omdb = require('omdb');
 var APIClinet = require('omdb-api-client');
 var omdb = new APIClinet();
+//var tomatoes = require('tomatoes');
+//var movies = tomatoes('6nkt9qb3ggxbd3ejyzsjvq3x');  // API Key 
 
 var Twitter = require('twitter');
 var oauth = require('oauth');
-var request = require('request');//
 
-
-//var client = keys.twitterKeys;
-//console.log(Object.keys(client));
-
-//consumer_key = client.consumer_key;
-//consumer_key = keys.twitterKeys.consumer_key;
-
-//console.log(JSON.stringify(myKeys, null, 2));
 
 console.log('Hi, welcome to LIRI');
 inquirer.prompt([
@@ -33,15 +40,8 @@ inquirer.prompt([
         choices: ["my-tweets", "spotify-this-song", "movie-this"],
         name: "command"
     }
-
-
-
-    // Once we are done with all the questions... "then" we do stuff with the answers
-    // In this case, we store all of the answers into a "user" object that inquirer makes for us. 
 ]).then(function(user) {
-
     //console.log(JSON.stringify(user, null, 2));
-
     switch (user.command) {
         case "my-tweets":
             GetTweets();
@@ -52,9 +52,10 @@ inquirer.prompt([
         case "movie-this":
             GetMovieName();
             break;
+        case "do-what-it-says":
+            // GetMovieName();
+            break;
     }
-
-
 });
 
 // ---------------------------------  Spotify Section ---------------------------------
@@ -68,7 +69,7 @@ function GetSongName() {
         }
         // Once we have the song name get the data from Spotify
     ]).then(function(user) {
-
+        console.log('--------------------------------------------------------------------------------');
         var songName = user.song;
 
         //console.log(JSON.stringify(user, null, 2));
@@ -87,6 +88,8 @@ function GetSongName() {
             console.log("Song name:   " + user.song); // song name
             console.log("Preview URL: " + data.tracks.items[0].preview_url); // preview link
             console.log("Album name:  " + data.tracks.items[0].album.name); // album name
+            console.log('--------------------------------------------------------------------------------');
+
         });
     });
 }
@@ -117,7 +120,13 @@ function GetMovieName() {
             movieName = "Mr. Nobody";
             console.log("if you haven't watched " + movieName + " then you should. You can catch it on Netflix");
         }
-        omdb({ t: movieName }).list().then(function(movie) {
+
+
+
+
+
+
+        omdb({ t: movieName , tomatoes: 'true'}).list().then(function(movie) {
             console.log("Movie name:  " + (movie.title ? movie.title : "Not listed"));
             console.log("Year:        " + (movie.year ? movie.year : "Not listed"));
             console.log("IMDB rating: " + (movie.imdbRating ? movie.imdbRating : "Not listed"));
@@ -125,23 +134,16 @@ function GetMovieName() {
             console.log("Language:    " + (movie.languages ? movie.languages : "Not listed"));
             console.log("Plot:        " + (movie.plot ? movie.plot : "Not listed"));
             console.log("Actors:      " + (movie.actors ? movie.actors : "Not listed"));
-            console.log("Rotton Tomatoes Rating:  ");
-            console.log("Rotton Tomatoes URL:     ");
+            console.log("Rotton Tomatoes Rating:  " + (movie.tomatoRating ? movie.tomatoRating : "Not listed"));
+            console.log("Rotton Tomatoes URL:     " + (movie.tomatoURL ? movie.tomatoURL : "Not listed"));
+            console.log('--------------------------------------------------------------------------------');
+
             //console.log(movie);
         }).catch(function(err) {
             console.log("Error. \nMovie not found.  \nPlease check spelling and try again.");
         });
     })
 }
-
-
-
-
-
-
-
-
-
 
 function GetMovieName_old() {
     inquirer.prompt([
@@ -195,17 +197,15 @@ function GetTweets() {
     });
 
 
-var params = {screen_name: 'mbajack2'};
-client.get('statuses/user_timeline', params, function(error, tweets, response){
-  if (!error) {
-   //console.log(JSON.stringify(tweets, null, 2));
-   for( var ii = 0; ii < tweets.length; ii++){
-    console.log("Tweet:  " + tweets[ii].text + "    Created: " + tweets[ii].created_at);
-   }
-  }
-  else{
-    console.log(error);
-  }
-});
+    var params = { screen_name: 'mbajack2' };
+    client.get('statuses/user_timeline', params, function(error, tweets, response) {
+        if (!error) {
+            //console.log(JSON.stringify(tweets, null, 2));
+            for (var ii = 0; ii < tweets.length; ii++) {
+                console.log("Tweet:  " + tweets[ii].text + "    Created: " + tweets[ii].created_at);
+            }
+        } else {
+            console.log(error);
+        }
+    });
 }
-
