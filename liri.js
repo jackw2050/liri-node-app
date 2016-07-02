@@ -49,10 +49,13 @@ inquirer.prompt([
             GetMovieName(user.command);
             break;
         case "do-what-it-says":
-            // GetMovieName();
+            DoWhatItSays(user.command);
             break;
     }
 });
+
+
+
 
 function LogThis(selectedCmd, itemName) {
     var myData = {
@@ -69,8 +72,27 @@ function LogThis(selectedCmd, itemName) {
     });
 }
 
+
+function DoWhatItSays(selectedCommand) {
+    fs.readFile('random.txt', 'utf8', function(err, contents) {
+        LogThis(selectedCommand, "Random");
+        if (err) {
+            console.log('Error occurred: ' + err);
+            return;
+        }
+      //  console.log(contents.split(','));
+        var randomArray = contents.split(',');
+      //  console.log(randomArray[0], randomArray[1]);
+      GetSongData(randomArray[0], randomArray[1])
+    });
+}
 // ---------------------------------  Spotify Section ---------------------------------
-function GetSongName(selectedCommand) {
+function GetSongName(selectedCommand, name) {
+    if (typeof name == 'undefined') {
+        console.log("typeof name");
+    }
+
+
     inquirer.prompt([
         // Have user select command
         {
@@ -82,32 +104,42 @@ function GetSongName(selectedCommand) {
     ]).then(function(user) {
         console.log('--------------------------------------------------------------------------------');
         var songName = user.song;
+        GetSongData(selectedCommand, songName)
+            //console.log(JSON.stringify(user, null, 2));
 
-        //console.log(JSON.stringify(user, null, 2));
 
-        if (user.song == '') {
-            songName = "what's my age again";
-            console.log(songName);
+
+
+    });
+}
+
+
+
+
+function GetSongData(selectedCommand, songToSearch) {
+    if (songToSearch == '') {
+        songToSearch = "what's my age again";
+        // console.log(songName);
+    }
+
+    spotify.search({ type: 'track', query: songToSearch }, function(err, data) {
+        LogThis(selectedCommand, songToSearch);
+        if (err) {
+            console.log('Error occurred: ' + err);
+            return;
+        }
+        // console.log(data.tracks.items.length);
+        console.log(JSON.stringify(data.tracks, null, 2));
+        for (var count = 0; count < data.tracks.items.length; count++) {
+            for (var ii = 0; ii < data.tracks.items[count].artists.length; ii++) {
+                console.log("Artist:      " + data.tracks.items[count].artists[ii].name); // artist name
+            }
+            console.log("Song name:   " + data.tracks.items[count].name); // song name
+            console.log("Preview URL: " + data.tracks.items[count].preview_url); // preview link
+            console.log("Album name:  " + data.tracks.items[count].album.name); // album name
+            console.log('--------------------------------------------------------------------------------');
         }
 
-        spotify.search({ type: 'track', query: songName }, function(err, data) {
-            LogThis(selectedCommand, songName);
-            if (err) {
-                console.log('Error occurred: ' + err);
-                return;
-            }
-           // console.log(data.tracks.items.length);
-          //  console.log(JSON.stringify(data.tracks.items[1].artists, null, 2));
-            for (var count = 0; count < data.tracks.items.length; count++) {
-
-
-                console.log("Artist:      " + data.tracks.items[count].artists[0].name); // artist name
-                console.log("Song name:   " + user.song); // song name
-                console.log("Preview URL: " + data.tracks.items[count].preview_url); // preview link
-                console.log("Album name:  " + data.tracks.items[count].album.name); // album name
-                console.log('--------------------------------------------------------------------------------');
-            }
-        });
     });
 }
 // ---------------------------------  OMDB Section ---------------------------------
