@@ -11,7 +11,7 @@ add for each [key] to searches
 */
 
 var fs = require('fs');
-var keys = require("./key.js");
+var keys = require("./keys.js");
 //var request = require('./request');
 
 var inquirer = require('inquirer');
@@ -65,8 +65,6 @@ function LogThis(selectedCmd, itemName) {
     myData.command = selectedCmd;
     myData.data = itemName;
 
-    //fs.appendFileSync('log.txt', 'flags');
-
     fs.appendFile('./log.txt', myData.command + ":" + myData.data + "," + "\n", function(err) {
         if (err) throw err;
     });
@@ -80,26 +78,8 @@ function DoWhatItSays(selectedCommand) {
             console.log('Error occurred: ' + err);
             return;
         }
-        //  console.log(contents.split(','));
-
-        // need to add more contents to random.txt
-        // random number (even only)
-        // add switch and call methods
-
         var randomArray = contents.split(',');
-        var random = Math.round(Math.floor((Math.random() * randomArray.length)));
-        if (random % 2 == 0) {
-            GetSongData(randomArray[random], randomArray[random + 1])
-        } else {
-            (random < 0 ? random = 0 : random--);
-            GetSongData(randomArray[random], randomArray[random + 1])
-        }
-
-
-        console.log(random);
-
-
-
+        GetSongData(randomArray[0], randomArray[1])
     });
 }
 // ---------------------------------  Spotify Section ---------------------------------
@@ -122,9 +102,6 @@ function GetSongName(selectedCommand, name) {
         var songName = user.song;
         GetSongData(selectedCommand, songName)
             //console.log(JSON.stringify(user, null, 2));
-
-
-
 
     });
 }
@@ -159,15 +136,6 @@ function GetSongData(selectedCommand, songToSearch) {
     });
 }
 // ---------------------------------  OMDB Section ---------------------------------
-/*Title
-
-if no movie is provided then the program will output information for the movie: 'Mr. Nobody'
-
-if you haven't watched Mr. Nobody then you should: http://www.imdb.com/title/tt0485947/
-You can catch it on Netflix
-
-*/
-
 
 function GetMovieName(selectedCommand) {
 
