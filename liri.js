@@ -80,10 +80,26 @@ function DoWhatItSays(selectedCommand) {
             console.log('Error occurred: ' + err);
             return;
         }
-      //  console.log(contents.split(','));
+        //  console.log(contents.split(','));
+
+        // need to add more contents to random.txt
+        // random number (even only)
+        // add switch and call methods
+
         var randomArray = contents.split(',');
-      //  console.log(randomArray[0], randomArray[1]);
-      GetSongData(randomArray[0], randomArray[1])
+        var random = Math.round(Math.floor((Math.random() * randomArray.length)));
+        if (random % 2 == 0) {
+            GetSongData(randomArray[random], randomArray[random + 1])
+        } else {
+            (random < 0 ? random = 0 : random--);
+            GetSongData(randomArray[random], randomArray[random + 1])
+        }
+
+
+        console.log(random);
+
+
+
     });
 }
 // ---------------------------------  Spotify Section ---------------------------------
@@ -129,7 +145,7 @@ function GetSongData(selectedCommand, songToSearch) {
             return;
         }
         // console.log(data.tracks.items.length);
-        console.log(JSON.stringify(data.tracks, null, 2));
+        // console.log(JSON.stringify(data.tracks, null, 2));
         for (var count = 0; count < data.tracks.items.length; count++) {
             for (var ii = 0; ii < data.tracks.items[count].artists.length; ii++) {
                 console.log("Artist:      " + data.tracks.items[count].artists[ii].name); // artist name

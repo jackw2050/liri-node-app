@@ -1,0 +1,19 @@
+{
+  "name": "liri",
+  "version": "1.0.0",
+  "description": "siri like app for homework",
+  "main": "inquirer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackw2050/liri-node-app.git"
+  },
+  "author": "Jack Walker",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jackw2050/liri-node-app/issues"
+  },
+  "homepage": "https://github.com/jackw2050/liri-node-app#readme"
+}
