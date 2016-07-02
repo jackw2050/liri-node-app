@@ -10,9 +10,6 @@ add for each [key] to searches
 
 */
 
-
-
-
 var fs = require('fs');
 var keys = require("./key.js");
 //var request = require('./request');
@@ -24,8 +21,7 @@ var spotify = require('spotify');
 //var omdb = require('omdb');
 var APIClinet = require('omdb-api-client');
 var omdb = new APIClinet();
-//var tomatoes = require('tomatoes');
-//var movies = tomatoes('6nkt9qb3ggxbd3ejyzsjvq3x');  // API Key 
+
 
 var Twitter = require('twitter');
 var oauth = require('oauth');
@@ -37,20 +33,20 @@ inquirer.prompt([
     {
         type: "list",
         message: "Command?",
-        choices: ["my-tweets", "spotify-this-song", "movie-this"],
+        choices: ["my-tweets", "spotify-this-song", "movie-this", "do-what-it-says"],
         name: "command"
     }
 ]).then(function(user) {
     //console.log(JSON.stringify(user, null, 2));
     switch (user.command) {
         case "my-tweets":
-            GetTweets();
+            GetTweets(user.command);
             break;
         case "spotify-this-song":
-            GetSongName();
+            GetSongName(user.command);
             break;
         case "movie-this":
-            GetMovieName();
+            GetMovieName(user.command);
             break;
         case "do-what-it-says":
             // GetMovieName();
@@ -58,8 +54,23 @@ inquirer.prompt([
     }
 });
 
+function LogThis(selectedCmd, itemName) {
+    var myData = {
+        command: "command",
+        data: "data"
+    }
+    myData.command = selectedCmd;
+    myData.data = itemName;
+
+    //fs.appendFileSync('log.txt', 'flags');
+
+    fs.appendFile('./log.txt', myData.command + ":" + myData.data + "," + "\n", function(err) {
+        if (err) throw err;
+    });
+}
+
 // ---------------------------------  Spotify Section ---------------------------------
-function GetSongName() {
+function GetSongName(selectedCommand) {
     inquirer.prompt([
         // Have user select command
         {
@@ -80,16 +91,22 @@ function GetSongName() {
         }
 
         spotify.search({ type: 'track', query: songName }, function(err, data) {
+            LogThis(selectedCommand, songName);
             if (err) {
                 console.log('Error occurred: ' + err);
                 return;
             }
-            console.log("Artist:      " + data.tracks.items[0].artists[0].name); // artist name
-            console.log("Song name:   " + user.song); // song name
-            console.log("Preview URL: " + data.tracks.items[0].preview_url); // preview link
-            console.log("Album name:  " + data.tracks.items[0].album.name); // album name
-            console.log('--------------------------------------------------------------------------------');
+           // console.log(data.tracks.items.length);
+          //  console.log(JSON.stringify(data.tracks.items[1].artists, null, 2));
+            for (var count = 0; count < data.tracks.items.length; count++) {
 
+
+                console.log("Artist:      " + data.tracks.items[count].artists[0].name); // artist name
+                console.log("Song name:   " + user.song); // song name
+                console.log("Preview URL: " + data.tracks.items[count].preview_url); // preview link
+                console.log("Album name:  " + data.tracks.items[count].album.name); // album name
+                console.log('--------------------------------------------------------------------------------');
+            }
         });
     });
 }
@@ -104,7 +121,7 @@ You can catch it on Netflix
 */
 
 
-function GetMovieName() {
+function GetMovieName(selectedCommand) {
 
     inquirer.prompt([{
         input: "list",
@@ -114,6 +131,7 @@ function GetMovieName() {
 
         var movieName = user.movie;
 
+
         //console.log(JSON.stringify(user, null, 2));
 
         if (user.movie == '') {
@@ -121,12 +139,8 @@ function GetMovieName() {
             console.log("if you haven't watched " + movieName + " then you should. You can catch it on Netflix");
         }
 
-
-
-
-
-
-        omdb({ t: movieName , tomatoes: 'true'}).list().then(function(movie) {
+        omdb({ t: movieName, tomatoes: 'true' }).list().then(function(movie) {
+            LogThis(selectedCommand, movieName);
             console.log("Movie name:  " + (movie.title ? movie.title : "Not listed"));
             console.log("Year:        " + (movie.year ? movie.year : "Not listed"));
             console.log("IMDB rating: " + (movie.imdbRating ? movie.imdbRating : "Not listed"));
@@ -145,49 +159,9 @@ function GetMovieName() {
     })
 }
 
-function GetMovieName_old() {
-    inquirer.prompt([
-        // Have user select command
-        {
-            input: "list",
-            message: "Movie name?",
-            name: "movie"
-        }
-        // Once we have the song name get the data from Spotify
-    ]).then(function(user) {
-        omdb.search(user.movie, function(err, movies) {
-            if (err) {
-                return console.error(err);
-            }
-
-            if (movies.length < 1) {
-                return console.log('No movies were found!');
-            }
-            console.log(JSON.stringify(movies, null, 2));
-
-            movies.forEach(function(movie) {
-                //  console.log('%s (%d)', movie.title, movie.year);
-                console.log('%s (%d) %d/10', movie.title, movie.year, movie.imdb.rating);
-                console.log(movie.plot);
-            });
-        });
-
-        omdb.get({ title: user.movie }, true, function(err, movie) {
-            if (err) {
-                return console.error(err);
-            }
-            if (!movie) {
-                return console.log('Movie not found!');
-            }
-
-        });
-
-    });
-}
-
 // ---------------------------------  Twitter Section ---------------------------------
 
-function GetTweets() {
+function GetTweets(selectedCommand) {
 
     var client = new Twitter({
         consumer_key: keys.twitterKeys.consumer_key,
@@ -199,6 +173,7 @@ function GetTweets() {
 
     var params = { screen_name: 'mbajack2' };
     client.get('statuses/user_timeline', params, function(error, tweets, response) {
+        LogThis(selectedCommand, "Tweets");
         if (!error) {
             //console.log(JSON.stringify(tweets, null, 2));
             for (var ii = 0; ii < tweets.length; ii++) {
